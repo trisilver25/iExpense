@@ -8,6 +8,7 @@
 import Observation
 import SwiftUI
 
+// Struct to create Expense Items, it conforms to Codable and Identifiable
 struct ExpenseItem: Identifiable, Codable {
     var id = UUID()
     let name: String
@@ -15,10 +16,12 @@ struct ExpenseItem: Identifiable, Codable {
     let amount: Double
 }
 
+// Enum to hold Business/Personal Types.
 enum ExpenseType: Codable {
     case business
     case personal
     
+    // Computed property to hold a string of either Business or Personal
     var description: String {
         switch self {
         case .business:
@@ -29,8 +32,10 @@ enum ExpenseType: Codable {
     }
 }
 
+// Class Expenses to hold Expense Items
 @Observable
 class Expenses {
+    // A items variable that holds an array of ExpenseItem
     var items = [ExpenseItem]() {
         didSet {
             if let encoded = try? JSONEncoder().encode(items) {
@@ -39,6 +44,7 @@ class Expenses {
         }
     }
     
+    // Class initializer
     init() {
         if let savedItems = UserDefaults.standard.data(forKey: "Items") {
             if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
@@ -50,8 +56,11 @@ class Expenses {
 }
 
 struct ContentView: View {
+    // Expenses variable of the Expenses Class
     @State private var expenses = Expenses()
     
+    
+    // A variable to hold wether the sheet should be shown or not, defaulty set to false.
     @State private var showingAddExpense = false
     
     var body: some View {
@@ -75,21 +84,20 @@ struct ContentView: View {
         }
     }
     
+    // Computed property to return any non nil business items.
     private var businessExpenses: [ExpenseItem] {
         Expenses().items
             .filter { $0.type == .business}
             .compactMap{ $0 }
     }
     
+    // Computed property to return any non nil personal items.
     private var personalExpenses: [ExpenseItem] {
         Expenses().items
             .filter { $0.type == .personal}
             .compactMap{ $0 }
     }
     
-    func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
-    }
 }
 
 struct ExpenseColumnView: View {
